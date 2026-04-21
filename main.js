@@ -21,10 +21,38 @@ function vecfloor(a) {
 function veceq(a, b) {
     return a.x == b.x && a.y == b.y
 }
+function vecrand(maxx, maxy) {
+    return vector(Math.random() * maxx, Math.random() * maxy)
+}
+
+function HSVtoRGB(h, s, v) {
+    // https://stackoverflow.com/a/17243070
+    var r, g, b, i, f, p, q, t;
+    i = Math.floor(h * 6);
+    f = h * 6 - i;
+    p = v * (1 - s);
+    q = v * (1 - f * s);
+    t = v * (1 - (1 - f) * s);
+    switch (i % 6) {
+        case 0: r = v, g = t, b = p; break;
+        case 1: r = q, g = v, b = p; break;
+        case 2: r = p, g = v, b = t; break;
+        case 3: r = p, g = q, b = v; break;
+        case 4: r = t, g = p, b = v; break;
+        case 5: r = v, g = p, b = q; break;
+    }
+    return [
+        Math.round(r * 255),
+        Math.round(g * 255),
+        Math.round(b * 255)
+    ];
+}
+
 
 let direction = vector(1, 0)
 let dircooldown = 0
-let snake = [{ pos: vector(1, 1), dir: direction }]
+let headheight = 0
+let snake = [{ pos: vector(1, 1), dir: direction, height: headheight }]
 
 let foods = []
 
@@ -39,22 +67,58 @@ function spawnPizza() {
     foods.push(makeFood(vecadd(vecfloor(pos), vector(1, 1)), "pizza_br"))
 }
 function spawnFood() {
-    let pos = vector(Math.random() * (width), Math.random() * (height))
+    let pos = vector(Math.random() * (width - 1), Math.random() * (height - 1))
     let type = "apple"
-    switch (Math.floor(Math.random() * 3)) {
-        case 0:
-            spawnPizza()
-            return
-        case 1:
-            type = "apple"
+    let pool = {
+        pizza: 100,
+        apple: 300,
+        scone: 100,
+        gay: 100,
+        snail: 100,
+    }
+    let total = 0
+    for (let key in pool) {
+        total += pool[key]
+    }
+    console.log(total)
+    let chance = Math.random() * total
+    let sum = 0
+    for (let key in pool) {
+        sum += pool[key]
+        if (chance < sum) {
+            type = key
             break
-        case 2:
-            type = "scone"
+        }
+    }
+    switch (type) {
+        case "pizza":
+            spawnPizza()
+            break
+        case "snail":
+            spawnFood()
+            spawnSnail()
             break
         default:
+            foods.push({ pos: vecfloor(pos), type })
     }
-    foods.push({ pos: vecfloor(pos), type })
+}
 
+let snail = {
+    pos: vector(0, 0),
+    alive: false
+}
+function spawnSnail() {
+    snail.alive = true
+    let diff = false
+    while (!diff) {
+        snail.pos = vecfloor(vecrand(width, height))
+        for (let segment of snake) {
+            if (!veceq(snail.pos, segment.pos)) {
+                diff = true
+                break
+            }
+        }
+    }
 }
 
 let assets = {}
@@ -65,6 +129,8 @@ function preload() {
     assets.pizza_br = mg.load_image("assets/pizza_br.png")
     assets.apple = mg.load_image("assets/apple.png")
     assets.scone = mg.load_image("assets/scone.png")
+    assets.gay = mg.load_image("assets/gay.png")
+    assets.snail = mg.load_image("assets/snail.png")
 }
 
 function load() {
@@ -77,10 +143,15 @@ let speed = 10
 let flipcooldown = 0
 
 let STATE = "playing"
+let deathreason = ""
+
+let background_color = [0, 0, 0]
+
+let gay = 0
 
 function loop() {
     if (STATE == "playing") {
-        mg.clear_screen(0, 0, 0)
+        mg.clear_screen(...background_color)
         frame++
         if (dircooldown > 0) dircooldown--
         if (flipcooldown > 0) flipcooldown--
@@ -119,7 +190,7 @@ function loop() {
             }
 
             if (flipped && flipcooldown == 0) {
-                flipcooldown = 30
+                flipcooldown = 15
                 direction = vecsub(vector(0, 0), snake[0].dir)
                 snake.reverse()
                 for (let segment of snake) {
@@ -127,27 +198,53 @@ function loop() {
                 }
             }
             if (moved) {
-                dircooldown = speed
+                dircooldown = speed / 2
             }
+        }
+
+        if (mg.isKeyDown("Space") && headheight == 0) {
+            headheight = 1
+            setTimeout(() => {headheight = 0}, 300)
         }
 
         let ateFood = false
         if (frame > speed) {
             frame = 0
             let newPos = vecadd(snake[snake.length - 1].pos, direction)
-            if (newPos.x < 0) newPos.x = width - 1
-            if (newPos.x >= width) newPos.x = 0
-            if (newPos.y < 0) newPos.y = height - 1
-            if (newPos.y >= height) newPos.y = 0
-            snake[snake.length-1].dir = direction
-            snake.push({ pos: newPos, dir: direction })
+            let hitside = false
+            if (newPos.x < 0) {
+                newPos.x = width - 1
+                hitside = true
+            }
+            if (newPos.x >= width) {
+                newPos.x = 0
+                hitside = true
+            }
+            if (newPos.y < 0) {
+                newPos.y = height - 1
+                hitside = true
+            }
+            if (newPos.y >= height) {
+                newPos.y = 0
+                hitside = true
+            }
+            if (hitside && Math.random() < 0.005) {
+                background_color = [Math.random() * 255, Math.random() * 255, Math.random() * 255]
+            }
+
+            snake[snake.length - 1].dir = direction
+            snake.push({ pos: newPos, dir: direction, height: headheight })
 
             let lastSegment = snake[snake.length - 1]
             for (let i = foods.length - 1; i >= 0; i--) {
-                if (veceq(foods[i].pos, lastSegment.pos)) {
+                if (veceq(foods[i].pos, lastSegment.pos) && headheight == 0) {
                     if (foods[i].type == "scone") {
                         speed -= 2
                         setTimeout(() => { speed += 2 }, 10000)
+                    }
+                    if (foods[i].type == "gay") {
+                        gay++
+                        setTimeout(() => { gay-- }, 10000)
                     }
                     foods.splice(i, 1)
                     ateFood = true
@@ -163,24 +260,37 @@ function loop() {
             }
 
             for (let i = 0; i < snake.length - 2; i++) {
-                if (veceq(snake[i].pos, lastSegment.pos)) {
+                if (veceq(snake[i].pos, lastSegment.pos) && headheight == 0) {
                     STATE = "game over"
+                    deathreason = "u ate urself"
+                }
+            }
+            if (veceq(lastSegment.pos, snail.pos)) {
+                if (headheight == 0) {
+                    STATE = "game over"
+                    deathreason = "snails are poisonus to snakes or something"
+                } else {
+                    snail.alive = false
                 }
             }
         }
 
 
-        let size = grid_size / 2
+        let i = 0
         for (let segment of snake) {
             mg.set_fill_color(0, 255, 0)
-
-            mg.filled_rect(segment.pos.x * grid_size + (grid_size / 2 - size / 2), segment.pos.y * grid_size + (grid_size / 2 - size / 2), size, size)
-            if (DEBUG) {
-            mg.set_fill_color(255,0,0)
-            mg.filled_rect(segment.pos.x * grid_size + grid_size/2, segment.pos.y * grid_size + grid_size/2, segment.dir.x*grid_size/2+2, segment.dir.y*grid_size/2+2)
+            if (gay > 0) {
+                mg.set_fill_color(...HSVtoRGB(i / snake.length, 1, 1))
             }
-            size += grid_size / (snake.length + 2)
-            size = Math.min(size, grid_size - 2)
+
+            let dsize = Math.floor(i / snake.length * grid_size / 2 + grid_size / 2)
+            dsize += segment.height * 6
+            mg.filled_rect(segment.pos.x * grid_size + (grid_size / 2 - dsize / 2), segment.pos.y * grid_size + (grid_size / 2 - dsize / 2), dsize, dsize)
+            if (DEBUG) {
+                mg.set_fill_color(255, 0, 0)
+                mg.filled_rect(segment.pos.x * grid_size + grid_size / 2, segment.pos.y * grid_size + grid_size / 2, segment.dir.x * grid_size / 2 + 2, segment.dir.y * grid_size / 2 + 2)
+            }
+            i++
         }
         mg.set_fill_color(0, 128, 0)
         let lastSegment = snake[snake.length - 1]
@@ -190,6 +300,9 @@ function loop() {
 
         for (let food of foods) {
             mg.draw_image(assets[food.type], food.pos.x * grid_size, food.pos.y * grid_size)
+        }
+        if (snail.alive) {
+            mg.draw_image(assets.snail, snail.pos.x * grid_size, snail.pos.y * grid_size)
         }
     }
 

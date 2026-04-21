@@ -1,11 +1,11 @@
 DONE pizza
 DONE u can swap head and tail
 DONE scones that make u fast
-if u hit the edge on a specific place it changes the texture of the level
-roguelike
-rainbow power up!!!
+DONE if u hit the edge on a specific place it changes the texture of the level
+DONE (kinda? snake is kinddddddd of a roguelike) roguelike
+DONE rainbow power up!!!
 thing that shrinks u
-gay love interest
+gay love interest (lily or dio or something else)
 cheat code to slow u down
 give the snake the ability to jump so it can kill the snail, which will spawn and move around every 2 hours, acting like a wall until you jump and land on it like mario also lets you jump over yourself
 en passant
