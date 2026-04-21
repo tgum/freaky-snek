@@ -70,11 +70,12 @@ function spawnFood() {
     let pos = vector(Math.random() * (width - 1), Math.random() * (height - 1))
     let type = "apple"
     let pool = {
-        pizza: 100,
         apple: 300,
+        pizza: 100,
         scone: 100,
-        gay: 100,
-        snail: 100,
+        gay:   50,
+        snail: 0.1,
+        heart: 10
     }
     let total = 0
     for (let key in pool) {
@@ -98,6 +99,7 @@ function spawnFood() {
             spawnFood()
             spawnSnail()
             break
+        case "heart":
         default:
             foods.push({ pos: vecfloor(pos), type })
     }
@@ -131,10 +133,31 @@ function preload() {
     assets.scone = mg.load_image("assets/scone.png")
     assets.gay = mg.load_image("assets/gay.png")
     assets.snail = mg.load_image("assets/snail.png")
+    assets.heart = mg.load_image("assets/heart.png")
 }
 
 function load() {
+    resetVariables()
     spawnFood()
+}
+
+function resetVariables() {
+    press.variables = {}
+    frame = 0
+    speed = 10
+    flipcooldown = 0
+    STATE = "playing"
+    deathreason = ""
+    background_color = [0,0,0]
+    gay = 0
+    cheatsequence = ""
+    slowdown = 0
+    canjump = true
+    dircooldown = 0
+    headheight = 0
+    snake = [{ pos: vector(1, 1), dir: direction, height: headheight }]
+
+    foods = []
 }
 
 let frame = 0
@@ -150,6 +173,7 @@ let background_color = [0, 0, 0]
 let gay = 0
 let cheatsequence = ""
 let slowdown = 0
+let canjump = true
 
 function loop() {
     if (STATE == "playing") {
@@ -204,9 +228,11 @@ function loop() {
             }
         }
 
-        if (mg.isKeyDown("Space") && headheight == 0) {
+        if (mg.isKeyDown("Space") && headheight == 0 && canjump) {
+            canjump = false
             headheight = 1
-            setTimeout(() => {headheight = 0}, 300)
+            setTimeout(() => {headheight = 0},   300)
+            setTimeout(() => {canjump = true}, 10000)
         }
 
         if (mg.isKeyDown("KeyN") && !cheatsequence.endsWith("n")) {
@@ -275,12 +301,12 @@ function loop() {
             }
 
             for (let i = 0; i < snake.length - 2; i++) {
-                if (veceq(snake[i].pos, lastSegment.pos) && headheight == 0) {
+                if (veceq(snake[i].pos, lastSegment.pos) && headheight == snake[i].height) {
                     STATE = "game over"
                     deathreason = "u ate urself"
                 }
             }
-            if (veceq(lastSegment.pos, snail.pos)) {
+            if (veceq(lastSegment.pos, snail.pos) && snail.alive) {
                 if (headheight == 0) {
                     STATE = "game over"
                     deathreason = "snails are poisonus to snakes or something"
@@ -322,7 +348,6 @@ function loop() {
     }
 
     mg.set_fill_color(255, 255, 255)
-    mg.draw_text(dircooldown, 0, 50)
 }
 
 mg.start()
