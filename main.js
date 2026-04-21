@@ -148,6 +148,8 @@ let deathreason = ""
 let background_color = [0, 0, 0]
 
 let gay = 0
+let cheatsequence = ""
+let slowdown = 0
 
 function loop() {
     if (STATE == "playing") {
@@ -207,8 +209,21 @@ function loop() {
             setTimeout(() => {headheight = 0}, 300)
         }
 
+        if (mg.isKeyDown("KeyN") && !cheatsequence.endsWith("n")) {
+            cheatsequence += "n"
+        }
+        if (mg.isKeyDown("KeyI") && !cheatsequence.endsWith("i")) {
+            cheatsequence += "i"
+        }
+        if (mg.isKeyDown("KeyA") && !cheatsequence.endsWith("a")) {
+            cheatsequence += "a"
+            if (cheatsequence.endsWith("nina")) {
+                speed += 4
+            }
+        }
+
         let ateFood = false
-        if (frame > speed) {
+        if (frame > speed + slowdown) {
             frame = 0
             let newPos = vecadd(snake[snake.length - 1].pos, direction)
             let hitside = false
