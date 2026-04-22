@@ -3,10 +3,9 @@ html {
   margin: 0;
   padding: 0;
   image-rendering: pixelated;
-  height: 100vh;
-  display: flex;
-  justify-content: center;
-  background-color: gray;
+  height: 99vh;
+  background-color: green;
+  overflow: none;
 }
 
 #container {
@@ -16,8 +15,59 @@ html {
 
 #canvas {
   width: 100%;
-  height: 100%;
   object-fit: contain;
   /* max-width: min(95vw, 95vh); */
   /* max-height: min(95vw, 95vh); */
+}
+
+#dpad {
+  --button-size: 4rem;
+  position: absolute;
+  bottom: 1em;
+  left: 1em;
+  display: grid;
+  grid: var(--button-size) var(--button-size) var(--button-size) / var(--button-size) var(--button-size) var(--button-size);
+}
+
+button {
+  background: black;
+  border: none;
+  color: white;
+}
+
+#dpad button {
+  width: var(--button-size);
+  height: var(--button-size);
+  font-weight: bolder;
+  font-size: 2em;
+}
+
+button#left {
+  grid-row-start: 2;
+  grid-column-start: 1;
+}
+
+button#up {
+  grid-row-start: 1;
+  grid-column-start: 2;
+}
+
+button#down {
+  grid-row-start: 3;
+  grid-column-start: 2;
+}
+
+button#right {
+  grid-row-start: 2;
+  grid-column-start: 3;
+}
+
+@media (orientation: landscape) {
+  #canvas {
+    height: 100%;
+  }
+
+  #dpad {
+    display: none;
+  }
 }

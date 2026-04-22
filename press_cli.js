@@ -1,35 +1,25 @@
 const press = require("./press.js")
+const fs = require('node:fs')
+const readline = require('node:readline')
 
-console.log(press.parse_rooms(`## Start
-yeah im a guy im talking bla bla
-[options] go to option tree
-!var [setvar] set variable
-?var [unsetvar] unset variable
-[eatfrog] eat a frog
+const rl = readline.createInterface({
+  input: process.stdin,
+  output: process.stdout,
+});
 
-## eatfrog
-you eat a frog bcuz ur stupiiiiiiiiiid
-[End] ...
+let text = fs.readFileSync("./dio.press", "utf8")
+let rooms = press.parse_rooms(text)
 
-## setvar
-+var
-variable is true
->Start
+function printroom(roomname) {
+    console.log()
+    let {text, options} = press.parse_room(rooms, roomname)
+    console.log(text.trim())
+    for (let i = 0; i < options.length; i++) {
+        console.log(`[${i+1}] ${options[i].text}`)
+    }
+    rl.question(`[?] `, num => {
+        printroom(options[num-1].dest)
+    });
+}
 
-## unsetvar
--var
-variable is false
->Start
-
-## options
-?var >skooky
->next
-
-## next
-hiya
-[Start] go bak
-
-## skooky
-skooky
-[Start] go bak
-`))
+printroom("Start")

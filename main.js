@@ -73,7 +73,7 @@ function spawnFood() {
         apple: 300,
         pizza: 100,
         scone: 100,
-        gay:   50,
+        gay: 50,
         snail: 0.1,
         heart: 10
     }
@@ -148,7 +148,7 @@ function resetVariables() {
     flipcooldown = 0
     STATE = "playing"
     deathreason = ""
-    background_color = [0,0,0]
+    background_color = [0, 0, 0]
     gay = 0
     cheatsequence = ""
     slowdown = 0
@@ -158,6 +158,14 @@ function resetVariables() {
     snake = [{ pos: vector(1, 1), dir: direction, height: headheight }]
 
     foods = []
+}
+
+let buttons = { up: false, down: false, left: false, right: false }
+for (let button of Object.keys(buttons)) {
+    let elt = document.getElementById(button)
+    elt.addEventListener("pointerdown", () => {
+        buttons[button] = true
+    })
 }
 
 let frame = 0
@@ -186,28 +194,32 @@ function loop() {
             let flipped = false
             let moved = false
             let headdir = snake[snake.length - 1].dir
-            if (mg.isKeyDown("KeyW")) {
+            if (mg.isKeyDown("KeyW") || mg.isKeyDown("ArrowUp") || buttons.up) {
+                buttons.up = false
                 let dir = vector(0, -1)
                 if (veceq(headdir, vecsub(vector(0, 0), dir))) {
                     flipped = true
                 } else direction = dir
                 moved = true
             }
-            if (mg.isKeyDown("KeyS")) {
+            if (mg.isKeyDown("KeyS") || mg.isKeyDown("ArrowDown") || buttons.down) {
+                buttons.down = false
                 let dir = vector(0, 1)
                 if (veceq(headdir, vecsub(vector(0, 0), dir))) {
                     flipped = true
                 } else direction = dir
                 moved = true
             }
-            if (mg.isKeyDown("KeyA")) {
+            if (mg.isKeyDown("KeyA") || mg.isKeyDown("ArrowLeft") || buttons.left) {
+                buttons.left = false
                 let dir = vector(-1, 0)
                 if (veceq(headdir, vecsub(vector(0, 0), dir))) {
                     flipped = true
                 } else direction = dir
                 moved = true
             }
-            if (mg.isKeyDown("KeyD")) {
+            if (mg.isKeyDown("KeyD") || mg.isKeyDown("ArrowRight") || buttons.right) {
+                buttons.right = false
                 let dir = vector(1, 0)
                 if (veceq(headdir, vecsub(vector(0, 0), dir))) {
                     flipped = true
@@ -231,8 +243,8 @@ function loop() {
         if (mg.isKeyDown("Space") && headheight == 0 && canjump) {
             canjump = false
             headheight = 1
-            setTimeout(() => {headheight = 0},   300)
-            setTimeout(() => {canjump = true}, 10000)
+            setTimeout(() => { headheight = 0 }, 300)
+            setTimeout(() => { canjump = true }, 3000)
         }
 
         if (mg.isKeyDown("KeyN") && !cheatsequence.endsWith("n")) {
@@ -321,7 +333,7 @@ function loop() {
         for (let segment of snake) {
             mg.set_fill_color(0, 255, 0)
             if (gay > 0) {
-                mg.set_fill_color(...HSVtoRGB(i / snake.length, 1, 1))
+                mg.set_fill_color(...HSVtoRGB(i / snake.length, 0.7, 1))
             }
 
             let dsize = Math.floor(i / snake.length * grid_size / 2 + grid_size / 2)
