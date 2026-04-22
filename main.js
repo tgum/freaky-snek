@@ -1,5 +1,3 @@
-'use strict'
-
 let DEBUG = false
 
 const grid_size = 20
