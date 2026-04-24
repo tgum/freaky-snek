@@ -1,10 +1,16 @@
+// i reccomend you skip reading this code
+// unless you hate yourself
+// there is literally ZERO organization
+// its just everything plonked into one file
+// i didnt even try to make it okay
+
 let DEBUG = false
 
 const grid_size = 20
 const width = mg.width / grid_size
 const height = mg.height / grid_size
 
-function vector(x, y) {
+function vector(x=0, y=0) {
     return { x, y }
 }
 function vecadd(a, b) {
@@ -24,6 +30,9 @@ function vecround(a) {
 }
 function veceq(a, b) {
     return a.x == b.x && a.y == b.y
+}
+function veccopy(a) {
+    return vector(a.x, a.y)
 }
 function vecrand(maxx, maxy) {
     return vector(Math.random() * maxx, Math.random() * maxy)
@@ -75,6 +84,7 @@ let foodPool = {
     pizza: 100,
     scone: 100,
     chicken: 30,
+    cat: 50,
     gay: 50,
     snail: 0.1,
     heart: 10
@@ -108,6 +118,10 @@ function spawnFood() {
         case "chicken":
             spawnFood()
             spawnChicken()
+            break
+        case "cat":
+            spawnFood()
+            spawnCat()
             break
         case "heart":
         default:
@@ -155,24 +169,25 @@ let cat = {
 function spawnCat() {
     cat.alive = true
     let side = Math.floor(Math.random() * 4)
+    let lastSegment = snake[snake.length - 1]
     if (side == 0) {
-        cat.pos.x = Math.random() * (width - 2)
+        cat.pos.x = Math.min(lastSegment.pos.x, width - 2)
         cat.pos.y = 0
         cat.dir = vector(0, 1)
         cat.angle = Math.PI / 2
     } else if (side == 1) {
-        cat.pos.x = Math.random() * (width - 2)
+        cat.pos.x = Math.min(lastSegment.pos.x, width - 2)
         cat.pos.y = height - 2
         cat.dir = vector(0, -1)
         cat.angle = -Math.PI / 2
     } else if (side == 2) {
         cat.pos.x = 0
-        cat.pos.y = Math.random() * (height - 2)
+        cat.pos.y = Math.min(lastSegment.pos.y, height - 2)
         cat.dir = vector(1, 0)
         cat.angle = 0
     } else if (side == 3) {
         cat.pos.x = width - 2
-        cat.pos.y = Math.random() * (height - 2)
+        cat.pos.y = Math.min(lastSegment.pos.y, height - 2)
         cat.dir = vector(-1, 0)
         cat.angle = Math.PI
     }
@@ -195,6 +210,7 @@ function preload() {
     assets.chicken_flipped = mg.load_image("assets/chicken_flipped.png")
     assets.chicken_eating_flipped = mg.load_image("assets/chicken_eating_flipped.png")
     assets.cat_warning = mg.load_image("assets/cat_warning.png")
+    assets.cat = mg.load_image("assets/cat.png")
 }
 
 function load() {
@@ -253,7 +269,7 @@ function loop(dt) {
         if (dircooldown > 0) dircooldown--
         if (flipcooldown > 0) flipcooldown--
 
-        if (Math.random() < 0.01 && !cat.alive) {
+        if (chicken.alive && Math.random() < 0.01 && !cat.alive) {
             spawnCat()
         }
 
@@ -462,17 +478,62 @@ function loop(dt) {
             if (chicken.dir.x > 0) img += "_flipped"
             mg.draw_image(assets[img], chicken.pos.x * grid_size, chicken.pos.y * grid_size)
         }
-    }
-    if (cat.alive) {
-        cat.timer++
-        if (cat.timer < 60 * 3) {
+        if (cat.alive) {
+            cat.timer++
             mg.ctx.save()
             mg.ctx.translate(cat.pos.x * grid_size + 20, cat.pos.y * grid_size + 20)
             mg.ctx.rotate(cat.angle)
-            mg.draw_image(assets.cat_warning, -20, -20)
+            if (cat.timer < 60 * 2) {
+                mg.draw_image(assets.cat_warning, -20, -20)
+            } else {
+                mg.draw_image(assets.cat, -20, -20)
+                cat.pos = vecadd(cat.pos, vecmul(cat.dir, 0.5))
+
+                let catmouth = vecadd(cat.pos, cat.dir)
+                let catmouth2 = veccopy(catmouth)
+                if (cat.dir.x == 0) {
+                    catmouth2.x++
+                } else {
+                    catmouth2.y++
+                }
+
+                let highest_segment = -1
+                for (let i = 0; i < snake.length; i++) {
+                    let segment = snake[i]
+                    if (veceq(catmouth, segment.pos) || veceq(catmouth2, segment.pos) && segment.height == 0) {
+                        if (i == snake.length - 1) {
+                            STATE = "game over"
+                            deathreason = "nommed by cat :3"
+                        }
+                        highest_segment = i
+                    }
+                }
+                if (highest_segment >= 0) {
+                    snake = snake.slice(highest_segment)
+                }
+                for (let i = foods.length - 1; i >= 0; i--) {
+                    if (veceq(catmouth, foods[i].pos) || veceq(catmouth2, foods[i].pos)) {
+                        foods.splice(i)
+                        if (foods.length == 0) {
+                            spawnFood()
+                            break
+                        }
+                    }
+                }
+
+                if (chicken.alive) {
+                    let collided = (catmouth.x <= chicken.pos.x + 5 && catmouth2.x + 1 >= chicken.pos.x) &&
+                        (catmouth.y <= chicken.pos.y + 5 && catmouth2.y + 1 >= chicken.pos.y)
+                    if (collided) {
+                        chicken.alive = false
+                    }
+                }
+
+                if (cat.pos.x < -2 || cat.pos.x > width || cat.pos.y < -2 || cat.pos.y > height) {
+                    cat.alive = false
+                }
+            }
             mg.ctx.restore()
-        } else {
-            cat.alive = false
         }
     }
 
