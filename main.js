@@ -10,7 +10,7 @@ const grid_size = 20
 const width = mg.width / grid_size
 const height = mg.height / grid_size
 
-function vector(x=0, y=0) {
+function vector(x = 0, y = 0) {
     return { x, y }
 }
 function vecadd(a, b) {
@@ -87,7 +87,8 @@ let foodPool = {
     cat: 50,
     gay: 50,
     snail: 0.1,
-    heart: 10
+    heart: 10,
+    monster: 100,
 }
 function spawnFood() {
     let pos = vector(Math.random() * (width - 1), Math.random() * (height - 1))
@@ -211,6 +212,8 @@ function preload() {
     assets.chicken_eating_flipped = mg.load_image("assets/chicken_eating_flipped.png")
     assets.cat_warning = mg.load_image("assets/cat_warning.png")
     assets.cat = mg.load_image("assets/cat.png")
+    assets.monster = mg.load_image("assets/monster.png")
+    assets.ginger = mg.load_image("assets/ginger.png")
 }
 
 function load() {
@@ -256,6 +259,7 @@ let deathreason = ""
 let background_color = [0, 0, 0]
 
 let gay = 0
+let irish = false
 let cheatsequence = ""
 let slowdown = 0
 let canjump = true
@@ -400,6 +404,10 @@ function loop(dt) {
                         gay++
                         setTimeout(() => { gay-- }, 10000)
                     }
+                    if (foods[i].type == "monster") {
+                        foodPool.monster = 0
+                        irish = true
+                    }
                     foods.splice(i, 1)
                     ateFood = true
                     if (foods.length == 0) {
@@ -449,6 +457,9 @@ function loop(dt) {
         mg.set_fill_color(0, 128, 0)
         let lastSegment = snake[snake.length - 1]
         mg.filled_rect(lastSegment.pos.x * grid_size, lastSegment.pos.y * grid_size, grid_size, grid_size)
+        if (irish) {
+            mg.draw_image(assets.ginger, lastSegment.pos.x * grid_size, lastSegment.pos.y * grid_size)
+        }
 
 
 
