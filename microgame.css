@@ -40,6 +40,7 @@ button {
   color: white;
   font-weight: bolder;
   font-size: 2em;
+  border-radius: 0.1em;
 }
 
 #dpad button {
@@ -72,7 +73,7 @@ button#right {
     height: 100%;
   }
 
-  #dpad {
+  #controls {
     display: none;
   }
 }

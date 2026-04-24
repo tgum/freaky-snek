@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>FREAKY snek</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script src="press.js"></script>
+</head>
+
+<body>
+    <img src="assets/dio_brando.png" height="300px">
+    <div id="textoutput"></div>
+    <div id="buttons"></div>
+    <script>
+        let rooms
+        function printroom(roomname) {
+            let { text, options } = press.parse_room(rooms, roomname)
+            textoutput.innerText = text.trim()
+            buttons.innerHTML = ""
+            for (let i = 0; i < options.length; i++) {
+                let b = document.createElement("button")
+                b.innerText = options[i].text
+                b.style.display = "block"
+                b.onclick = () => {
+                    printroom(options[i].dest)
+                }
+                buttons.append(b)
+            }
+        }
+        fetch("dio.press")
+            .then(r => r.text())
+            .then(r => {
+                rooms = press.parse_rooms(r)
+
+                printroom("Start")
+            })
+    </script>
+</body>
+
+</html>

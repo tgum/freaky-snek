@@ -1,32 +1,57 @@
 ## Start
-yeah im a guy im talking bla bla
-[options] go to option tree
-!var [setvar] set variable
-?var [unsetvar] unset variable
-[eatfrog] eat a frog
+"Your objective: get a date with me, Dio Brando, before I suck your life force!"
 
-## eatfrog
-you eat a frog bcuz ur stupiiiiiiiiiid
-[End] ...
+[startfr] Challenge accepted !
+[explanation] um i didnt watch jojo's bizzarre adventure
 
-## setvar
-+var
-variable is true
->Start
+## explanation
+"im like a vampire with magic vampire powers. yea."
 
-## unsetvar
--var
-variable is false
->Start
+[startfr] okay sure
+[not my type] you're not rly my type
 
-## options
-?var >skooky
->next
+## not my type
+"No! Impossible! How are you not attracted to my magnificently perfected physique?"
 
-## next
-hiya
-[Start] go bak
+[badending] its not hard...
+[neutralending] i'm just not into guys sorry
 
-## skooky
-skooky
-[Start] go bak
+## startfr
+"First i have to ask, are you a MAN?"
+
+[player is MAN] yeah
+[neutralending] nah
+
+## player is MAN
+(Perfect! We may begin.)
+
+## badending
+;"ニア　ハタナタサハらや　やぁら　タラハア　ハ　はあら　たなわん"
+"AHAHA! YOU FELL PREY TO MY EVIL PLAN! I SHALL NOW PROCEED TO EXTRACT ALL YOUR CORTISOL, LEADING TO RAPID LOWERING OF YOUR BLOOD PRESSURE AND PREVENTING YOU FROM USING YOUR HAMON BREATHING ENERGY TECHINQUE!!!"
+
+youre fucked
+
++noHamon
++gottaFight
+[End] back to snek
+
+## neutralending
+;"へあら むさたなたねたあ たな ラタラヘマ サア ネタ ュテクアル"
+"Meeting you was pleasant, but sadly i must regenerate my energy, therefore I shall have to consume your life force. My apologies"
+
+good luck haha
+
++gottaFight
+[End] back to snek
+
+## goodending
+;"へあら むさたなたねたあ たな ラタラヘマ サア ネタ ュテクアル"
+"This was fun haha ! w-would you like to meet again sometime? UwU"
+
+nice! u arent getting killed by an evil vampire today!
+
+[End] back to snek
+
+## End
+-*
+[Start] restart

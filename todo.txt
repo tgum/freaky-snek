@@ -6,10 +6,13 @@ DONE (kinda? snake is kinddddddd of a roguelike) roguelike
 DONE rainbow power up!!!
 DONE thing that shrinks u
 DONE cat that eats everything
-gay love interest (dio from jjba)
-half DONE mobile controls
+DONE mobile controls
 DONE cheat code to slow u down
 DONE give the snake the ability to jump so it can kill the snail, which will spawn and move around every 2 hours, acting like a wall until you jump and land on it like mario also lets you jump over yourself
 DONE chicken
-lily somehow
+DOEN lily somehow
 en passant
+gay love interest (dio from jjba)
+score
+game over
+tutorial?
