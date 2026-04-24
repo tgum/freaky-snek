@@ -269,7 +269,7 @@ function loop(dt) {
         if (dircooldown > 0) dircooldown--
         if (flipcooldown > 0) flipcooldown--
 
-        if (chicken.alive && Math.random() < 0.01 && !cat.alive) {
+        if (chicken.alive && Math.random() < 0.005 && !cat.alive) {
             spawnCat()
         }
 
@@ -277,32 +277,28 @@ function loop(dt) {
             let flipped = false
             let moved = false
             let headdir = snake[snake.length - 1].dir
-            if (mg.isKeyDown("KeyW") || mg.isKeyDown("ArrowUp") || buttons.up) {
-                buttons.up = false
+            if (mg.isKeyJustDown("KeyW") || mg.isKeyJustDown("ArrowUp") || buttons.up) {
                 let dir = vector(0, -1)
                 if (veceq(headdir, vecsub(vector(0, 0), dir))) {
                     flipped = true
                 } else direction = dir
                 moved = true
             }
-            if (mg.isKeyDown("KeyS") || mg.isKeyDown("ArrowDown") || buttons.down) {
-                buttons.down = false
+            if (mg.isKeyJustDown("KeyS") || mg.isKeyJustDown("ArrowDown") || buttons.down) {
                 let dir = vector(0, 1)
                 if (veceq(headdir, vecsub(vector(0, 0), dir))) {
                     flipped = true
                 } else direction = dir
                 moved = true
             }
-            if (mg.isKeyDown("KeyA") || mg.isKeyDown("ArrowLeft") || buttons.left) {
-                buttons.left = false
+            if (mg.isKeyJustDown("KeyA") || mg.isKeyJustDown("ArrowLeft") || buttons.left) {
                 let dir = vector(-1, 0)
                 if (veceq(headdir, vecsub(vector(0, 0), dir))) {
                     flipped = true
                 } else direction = dir
                 moved = true
             }
-            if (mg.isKeyDown("KeyD") || mg.isKeyDown("ArrowRight") || buttons.right) {
-                buttons.right = false
+            if (mg.isKeyJustDown("KeyD") || mg.isKeyJustDown("ArrowRight") || buttons.right) {
                 let dir = vector(1, 0)
                 if (veceq(headdir, vecsub(vector(0, 0), dir))) {
                     flipped = true
@@ -336,16 +332,16 @@ function loop(dt) {
             lastjump = 0
         }
 
-        if (mg.isKeyJustDown("KeyG")) {
+        if (mg.isKeyJustDown("KeyG") || buttons.up) {
             cheatsequence += "g"
         }
-        if (mg.isKeyJustDown("KeyU")) {
+        if (mg.isKeyJustDown("KeyU") || buttons.down) {
             cheatsequence += "u"
         }
-        if (mg.isKeyJustDown("KeyS")) {
+        if (mg.isKeyJustDown("KeyS") || buttons.left) {
             cheatsequence += "s"
         }
-        if (mg.isKeyJustDown("KeyY")) {
+        if (mg.isKeyJustDown("KeyY") || buttons.right) {
             cheatsequence += "y"
             if (cheatsequence.endsWith("gussy")) {
                 speed += 4
@@ -534,6 +530,9 @@ function loop(dt) {
                 }
             }
             mg.ctx.restore()
+        }
+        for (let key in buttons) {
+            buttons[key] = false
         }
     }
 
