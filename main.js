@@ -70,27 +70,28 @@ function spawnPizza() {
     foods.push(makeFood(vecadd(vecfloor(pos), vector(0, 1)), "pizza_bl"))
     foods.push(makeFood(vecadd(vecfloor(pos), vector(1, 1)), "pizza_br"))
 }
+let foodPool = {
+    apple: 300,
+    pizza: 100,
+    scone: 100,
+    chicken: 30,
+    gay: 50,
+    snail: 0.1,
+    heart: 10
+}
 function spawnFood() {
     let pos = vector(Math.random() * (width - 1), Math.random() * (height - 1))
     let type = "apple"
-    let pool = {
-        apple: 300,
-        pizza: 100,
-        scone: 100,
-        chicken: 500,
-        gay: 50,
-        snail: 0.1,
-        heart: 10
-    }
+
     let total = 0
-    for (let key in pool) {
-        total += pool[key]
+    for (let key in foodPool) {
+        total += foodPool[key]
     }
     console.log(total)
     let chance = Math.random() * total
     let sum = 0
-    for (let key in pool) {
-        sum += pool[key]
+    for (let key in foodPool) {
+        sum += foodPool[key]
         if (chance < sum) {
             type = key
             break
@@ -141,7 +142,7 @@ let chicken = {
 function spawnChicken() {
     if (chicken.alive) return
     chicken.alive = true
-    chicken.pos = vecrand(width, height)
+    chicken.pos = vecadd(vecrand(width-7, height-7), vector(1, 1))
     chicken.dir = vecsub(vecrand(2, 2), vector(1, 1))
 }
 
@@ -158,6 +159,8 @@ function preload() {
     assets.heart = mg.load_image("assets/heart.png")
     assets.chicken = mg.load_image("assets/chicken.png")
     assets.chicken_eating = mg.load_image("assets/chicken_eating.png")
+    assets.chicken_flipped = mg.load_image("assets/chicken_flipped.png")
+    assets.chicken_eating_flipped = mg.load_image("assets/chicken_eating_flipped.png")
 }
 
 function load() {
@@ -285,13 +288,14 @@ function loop(dt) {
         }
 
         if (chicken.alive) {
-            chicken.pos = vecadd(chicken.pos, vecmul(chicken.dir, 0.1))
-            if (chicken.pos.x < 0 || chicken.pos.x > width - 5) {
-                chicken.dir.x *= -1
+            chicken.pos = vecadd(chicken.pos, vecmul(chicken.dir, 0.05))
+            if (chicken.pos.x < 0 || chicken.pos.x >= width - 5.1) {
+                chicken.dir.x *= -Math.random()
             }
             if (chicken.pos.y < 0 || chicken.pos.y > height - 5) {
-                chicken.dir.y *= -1
+                chicken.dir.y *= -Math.random()
             }
+            chicken.pos = vecadd(chicken.pos, vecmul(chicken.dir, 0.05))
         }
 
         let ateFood = false
@@ -393,16 +397,20 @@ function loop(dt) {
             mg.draw_image(assets.snail, snail.pos.x * grid_size, snail.pos.y * grid_size)
         }
         if (chicken.alive) {
-            let beakpos = vecfloor(vecadd(chicken.pos, vector(9/grid_size, 48/grid_size)))
-            if (veceq(beakpos, snake[snake.length-1].pos)) {
+            let x = 9
+            if (chicken.dir.x > 0) x = 91
+            let beakpos = vecfloor(vecadd(chicken.pos, vector(x / grid_size, 48 / grid_size)))
+            if (veceq(beakpos, snake[snake.length - 1].pos)) {
                 STATE = "game over"
                 deathreason = "eated by chicken"
             }
 
             chicken.frame++
             chicken.frame = chicken.frame % 16
-            let frame = Math.floor(chicken.frame/8)
-            mg.draw_image([assets.chicken, assets.chicken_eating][frame], chicken.pos.x * grid_size, chicken.pos.y * grid_size)
+            let img = "chicken"
+            if (chicken.frame >= 8) img += "_eating"
+            if (chicken.dir.x > 0) img += "_flipped"
+            mg.draw_image(assets[img], chicken.pos.x * grid_size, chicken.pos.y * grid_size)
         }
     }
 

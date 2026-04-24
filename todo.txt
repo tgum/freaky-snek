@@ -11,5 +11,5 @@ half DONE mobile controls
 DONE cheat code to slow u down
 DONE give the snake the ability to jump so it can kill the snail, which will spawn and move around every 2 hours, acting like a wall until you jump and land on it like mario also lets you jump over yourself
 en passant
-chicken
+DONE chicken
 lily somehow
