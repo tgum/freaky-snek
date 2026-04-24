@@ -237,7 +237,7 @@ function resetVariables() {
     foods = []
 }
 
-let buttons = { up: false, down: false, left: false, right: false }
+let buttons = { up: false, down: false, left: false, right: false, jump: false }
 for (let button of Object.keys(buttons)) {
     let elt = document.getElementById(button)
     elt.addEventListener("pointerdown", () => {
@@ -319,7 +319,7 @@ function loop(dt) {
             }
         }
 
-        if (mg.isKeyJustDown("Space")) {
+        if (mg.isKeyJustDown("Space") || buttons.jump) {
             if (headheight == 0 && canjump) {
                 canjump = false
                 headheight = 1

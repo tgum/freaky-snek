@@ -4,8 +4,8 @@ DONE scones that make u fast
 DONE if u hit the edge on a specific place it changes the texture of the level
 DONE (kinda? snake is kinddddddd of a roguelike) roguelike
 DONE rainbow power up!!!
-thing that shrinks u
-cat that eats everything
+DONE thing that shrinks u
+DONE cat that eats everything
 gay love interest (dio from jjba)
 half DONE mobile controls
 DONE cheat code to slow u down
