@@ -64,6 +64,7 @@ mg._loop = function(timeStamp) {
   if (typeof loop === "function") {
     loop(elapsed)
   }
+  mg._update_keys_length()
   setTimeout(() => mg._loop(Date.now()), 1000/mg.fps)
   //window.requestAnimationFrame(mg._loop)
 }
@@ -110,15 +111,28 @@ mg.clear_screen = function(r=255, g=255, b=255) {
 }
 
 mg.keys = {}
+mg.keys_length = {}
 document.body.addEventListener("keydown", (event) => {
   mg.keys[event.code] = true
+  mg.keys_length[event.code] = 1
 });
 document.body.addEventListener("keyup", (event) => {
   mg.keys[event.code] = false
+  mg.keys_length[event.code] = 0
 });
 
 mg.isKeyDown = function(key) {
   return !!mg.keys[key]
+}
+mg.isKeyJustDown = function(key) {
+  return mg.keys_length[key] == 1
+}
+mg._update_keys_length = function() {
+  for (let key in mg.keys) {
+    if (mg.keys[key]) {
+      mg.keys_length[key]++
+    }
+  }
 }
 
 mg.mouse = {x: 0, y: 0, buttons: [false, false, false]}

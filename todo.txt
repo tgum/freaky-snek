@@ -5,11 +5,11 @@ DONE if u hit the edge on a specific place it changes the texture of the level
 DONE (kinda? snake is kinddddddd of a roguelike) roguelike
 DONE rainbow power up!!!
 thing that shrinks u
-cat that eats snake
+cat that eats everything
 gay love interest (dio from jjba)
 half DONE mobile controls
 DONE cheat code to slow u down
 DONE give the snake the ability to jump so it can kill the snail, which will spawn and move around every 2 hours, acting like a wall until you jump and land on it like mario also lets you jump over yourself
-en passant
 DONE chicken
 lily somehow
+en passant

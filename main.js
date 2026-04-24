@@ -142,8 +142,41 @@ let chicken = {
 function spawnChicken() {
     if (chicken.alive) return
     chicken.alive = true
-    chicken.pos = vecadd(vecrand(width-7, height-7), vector(1, 1))
+    chicken.pos = vecadd(vecrand(width - 7, height - 7), vector(1, 1))
     chicken.dir = vecsub(vecrand(2, 2), vector(1, 1))
+}
+let cat = {
+    pos: vector(0, 0),
+    alive: false,
+    timer: 0,
+    dir: vector(0, 0),
+    angle: 0
+}
+function spawnCat() {
+    cat.alive = true
+    let side = Math.floor(Math.random() * 4)
+    if (side == 0) {
+        cat.pos.x = Math.random() * (width - 2)
+        cat.pos.y = 0
+        cat.dir = vector(0, 1)
+        cat.angle = Math.PI / 2
+    } else if (side == 1) {
+        cat.pos.x = Math.random() * (width - 2)
+        cat.pos.y = height - 2
+        cat.dir = vector(0, -1)
+        cat.angle = -Math.PI / 2
+    } else if (side == 2) {
+        cat.pos.x = 0
+        cat.pos.y = Math.random() * (height - 2)
+        cat.dir = vector(1, 0)
+        cat.angle = 0
+    } else if (side == 3) {
+        cat.pos.x = width - 2
+        cat.pos.y = Math.random() * (height - 2)
+        cat.dir = vector(-1, 0)
+        cat.angle = Math.PI
+    }
+    cat.timer = 0
 }
 
 let assets = {}
@@ -161,6 +194,7 @@ function preload() {
     assets.chicken_eating = mg.load_image("assets/chicken_eating.png")
     assets.chicken_flipped = mg.load_image("assets/chicken_flipped.png")
     assets.chicken_eating_flipped = mg.load_image("assets/chicken_eating_flipped.png")
+    assets.cat_warning = mg.load_image("assets/cat_warning.png")
 }
 
 function load() {
@@ -209,13 +243,19 @@ let gay = 0
 let cheatsequence = ""
 let slowdown = 0
 let canjump = true
+let lastjump = 0
 
 function loop(dt) {
     if (STATE == "playing") {
         mg.clear_screen(...background_color)
         frame++
+        lastjump++
         if (dircooldown > 0) dircooldown--
         if (flipcooldown > 0) flipcooldown--
+
+        if (Math.random() < 0.01 && !cat.alive) {
+            spawnCat()
+        }
 
         if (dircooldown == 0) {
             let flipped = false
@@ -267,23 +307,33 @@ function loop(dt) {
             }
         }
 
-        if (mg.isKeyDown("Space") && headheight == 0 && canjump) {
-            canjump = false
-            headheight = 1
-            setTimeout(() => { headheight = 0 }, 300)
-            setTimeout(() => { canjump = true }, 3000)
+        if (mg.isKeyJustDown("Space")) {
+            if (headheight == 0 && canjump) {
+                canjump = false
+                headheight = 1
+                setTimeout(() => { headheight = 0 }, dt * speed * 3)
+                setTimeout(() => { canjump = true }, 3000)
+            }
+            if (lastjump < 20) {
+                console.log("doublejump!")
+            }
+            lastjump = 0
         }
 
-        if (mg.isKeyDown("KeyN") && !cheatsequence.endsWith("n")) {
-            cheatsequence += "n"
+        if (mg.isKeyJustDown("KeyG")) {
+            cheatsequence += "g"
         }
-        if (mg.isKeyDown("KeyI") && !cheatsequence.endsWith("i")) {
-            cheatsequence += "i"
+        if (mg.isKeyJustDown("KeyU")) {
+            cheatsequence += "u"
         }
-        if (mg.isKeyDown("KeyA") && !cheatsequence.endsWith("a")) {
-            cheatsequence += "a"
-            if (cheatsequence.endsWith("nina")) {
+        if (mg.isKeyJustDown("KeyS")) {
+            cheatsequence += "s"
+        }
+        if (mg.isKeyJustDown("KeyY")) {
+            cheatsequence += "y"
+            if (cheatsequence.endsWith("gussy")) {
                 speed += 4
+                console.log("cheatcode :D")
             }
         }
 
@@ -411,6 +461,18 @@ function loop(dt) {
             if (chicken.frame >= 8) img += "_eating"
             if (chicken.dir.x > 0) img += "_flipped"
             mg.draw_image(assets[img], chicken.pos.x * grid_size, chicken.pos.y * grid_size)
+        }
+    }
+    if (cat.alive) {
+        cat.timer++
+        if (cat.timer < 60 * 3) {
+            mg.ctx.save()
+            mg.ctx.translate(cat.pos.x * grid_size + 20, cat.pos.y * grid_size + 20)
+            mg.ctx.rotate(cat.angle)
+            mg.draw_image(assets.cat_warning, -20, -20)
+            mg.ctx.restore()
+        } else {
+            cat.alive = false
         }
     }
 
