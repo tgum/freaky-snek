@@ -64,7 +64,7 @@ mg._loop = function(timeStamp) {
   if (typeof loop === "function") {
     loop(elapsed)
   }
-  setTimeout(mg._loop, 1000/mg.fps)
+  setTimeout(() => mg._loop(Date.now()), 1000/mg.fps)
   //window.requestAnimationFrame(mg._loop)
 }
 

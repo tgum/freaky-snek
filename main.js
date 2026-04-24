@@ -13,8 +13,14 @@ function vecadd(a, b) {
 function vecsub(a, b) {
     return vector(a.x - b.x, a.y - b.y)
 }
+function vecmul(a, b) {
+    return vector(a.x * b, a.y * b)
+}
 function vecfloor(a) {
     return vector(Math.floor(a.x), Math.floor(a.y))
+}
+function vecround(a) {
+    return vector(Math.round(a.x), Math.round(a.y))
 }
 function veceq(a, b) {
     return a.x == b.x && a.y == b.y
@@ -71,6 +77,7 @@ function spawnFood() {
         apple: 300,
         pizza: 100,
         scone: 100,
+        chicken: 500,
         gay: 50,
         snail: 0.1,
         heart: 10
@@ -97,6 +104,10 @@ function spawnFood() {
             spawnFood()
             spawnSnail()
             break
+        case "chicken":
+            spawnFood()
+            spawnChicken()
+            break
         case "heart":
         default:
             foods.push({ pos: vecfloor(pos), type })
@@ -108,6 +119,7 @@ let snail = {
     alive: false
 }
 function spawnSnail() {
+    if (snail.alive) return
     snail.alive = true
     let diff = false
     while (!diff) {
@@ -119,6 +131,18 @@ function spawnSnail() {
             }
         }
     }
+}
+let chicken = {
+    pos: vector(0, 0),
+    alive: false,
+    dir: vector(0, 0),
+    frame: 0
+}
+function spawnChicken() {
+    if (chicken.alive) return
+    chicken.alive = true
+    chicken.pos = vecrand(width, height)
+    chicken.dir = vecsub(vecrand(2, 2), vector(1, 1))
 }
 
 let assets = {}
@@ -132,6 +156,8 @@ function preload() {
     assets.gay = mg.load_image("assets/gay.png")
     assets.snail = mg.load_image("assets/snail.png")
     assets.heart = mg.load_image("assets/heart.png")
+    assets.chicken = mg.load_image("assets/chicken.png")
+    assets.chicken_eating = mg.load_image("assets/chicken_eating.png")
 }
 
 function load() {
@@ -181,7 +207,7 @@ let cheatsequence = ""
 let slowdown = 0
 let canjump = true
 
-function loop() {
+function loop(dt) {
     if (STATE == "playing") {
         mg.clear_screen(...background_color)
         frame++
@@ -258,6 +284,16 @@ function loop() {
             }
         }
 
+        if (chicken.alive) {
+            chicken.pos = vecadd(chicken.pos, vecmul(chicken.dir, 0.1))
+            if (chicken.pos.x < 0 || chicken.pos.x > width - 5) {
+                chicken.dir.x *= -1
+            }
+            if (chicken.pos.y < 0 || chicken.pos.y > height - 5) {
+                chicken.dir.y *= -1
+            }
+        }
+
         let ateFood = false
         if (frame > speed + slowdown) {
             frame = 0
@@ -282,6 +318,7 @@ function loop() {
             if (hitside && Math.random() < 0.005) {
                 background_color = [Math.random() * 255, Math.random() * 255, Math.random() * 255]
             }
+
 
             snake[snake.length - 1].dir = direction
             snake.push({ pos: newPos, dir: direction, height: headheight })
@@ -331,7 +368,7 @@ function loop() {
         for (let segment of snake) {
             mg.set_fill_color(0, 255, 0)
             if (gay > 0) {
-                mg.set_fill_color(...HSVtoRGB(i / snake.length, 0.7, 1))
+                mg.set_fill_color(...HSVtoRGB(i / snake.length, 0.9, 1))
             }
 
             let dsize = Math.floor(i / snake.length * grid_size / 2 + grid_size / 2)
@@ -355,9 +392,22 @@ function loop() {
         if (snail.alive) {
             mg.draw_image(assets.snail, snail.pos.x * grid_size, snail.pos.y * grid_size)
         }
+        if (chicken.alive) {
+            let beakpos = vecfloor(vecadd(chicken.pos, vector(9/grid_size, 48/grid_size)))
+            if (veceq(beakpos, snake[snake.length-1].pos)) {
+                STATE = "game over"
+                deathreason = "eated by chicken"
+            }
+
+            chicken.frame++
+            chicken.frame = chicken.frame % 16
+            let frame = Math.floor(chicken.frame/8)
+            mg.draw_image([assets.chicken, assets.chicken_eating][frame], chicken.pos.x * grid_size, chicken.pos.y * grid_size)
+        }
     }
 
     mg.set_fill_color(255, 255, 255)
+    mg.draw_text(Math.floor(1000 / dt), 0, 20)
 }
 
 mg.start()
