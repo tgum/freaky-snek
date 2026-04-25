@@ -77,3 +77,15 @@ button#right {
     display: none;
   }
 }
+
+#gameover {
+  position: absolute;
+  display: flex;
+  top: 0;
+  color: white;
+  width: 100%;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  text-align: center;
+}

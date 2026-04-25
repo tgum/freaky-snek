@@ -170,28 +170,7 @@ let cat = {
 function spawnCat() {
     cat.alive = true
     let side = Math.floor(Math.random() * 4)
-    let lastSegment = snake[snake.length - 1]
-    if (side == 0) {
-        cat.pos.x = Math.min(lastSegment.pos.x, width - 2)
-        cat.pos.y = 0
-        cat.dir = vector(0, 1)
-        cat.angle = Math.PI / 2
-    } else if (side == 1) {
-        cat.pos.x = Math.min(lastSegment.pos.x, width - 2)
-        cat.pos.y = height - 2
-        cat.dir = vector(0, -1)
-        cat.angle = -Math.PI / 2
-    } else if (side == 2) {
-        cat.pos.x = 0
-        cat.pos.y = Math.min(lastSegment.pos.y, height - 2)
-        cat.dir = vector(1, 0)
-        cat.angle = 0
-    } else if (side == 3) {
-        cat.pos.x = width - 2
-        cat.pos.y = Math.min(lastSegment.pos.y, height - 2)
-        cat.dir = vector(-1, 0)
-        cat.angle = Math.PI
-    }
+    cat.side = side
     cat.timer = 0
 }
 
@@ -264,6 +243,7 @@ let cheatsequence = ""
 let slowdown = 0
 let canjump = true
 let lastjump = 0
+let score = 0
 
 function loop(dt) {
     if (STATE == "playing") {
@@ -354,7 +334,7 @@ function loop(dt) {
         }
 
         if (chicken.alive) {
-            chicken.pos = vecadd(chicken.pos, vecmul(chicken.dir, 0.05))
+            chicken.pos = vecadd(chicken.pos, vecmul(chicken.dir, 0.1))
             if (chicken.pos.x < 0 || chicken.pos.x >= width - 5.1) {
                 chicken.dir.x *= -Math.random()
             }
@@ -396,6 +376,7 @@ function loop(dt) {
             let lastSegment = snake[snake.length - 1]
             for (let i = foods.length - 1; i >= 0; i--) {
                 if (veceq(foods[i].pos, lastSegment.pos) && headheight == 0) {
+                    score += 10 / speed * (gay + 1)
                     if (foods[i].type == "scone") {
                         speed -= 2
                         setTimeout(() => { speed += 2 }, 10000)
@@ -442,7 +423,7 @@ function loop(dt) {
         for (let segment of snake) {
             mg.set_fill_color(0, 255, 0)
             if (gay > 0) {
-                mg.set_fill_color(...HSVtoRGB(i / snake.length, 0.9, 1))
+                mg.set_fill_color(...HSVtoRGB(i / snake.length, 0.6 + gay*0.2, 1))
             }
 
             let dsize = Math.floor(i / snake.length * grid_size / 2 + grid_size / 2)
@@ -490,8 +471,38 @@ function loop(dt) {
             mg.ctx.save()
             mg.ctx.translate(cat.pos.x * grid_size + 20, cat.pos.y * grid_size + 20)
             mg.ctx.rotate(cat.angle)
+            if (cat.timer < 60 * 1.5) {
+                let lastSegment = snake[snake.length - 1]
+                if (cat.side == 0) {
+                    cat.pos.x = Math.min(lastSegment.pos.x, width - 2)
+                    cat.pos.y = 0
+                    cat.dir = vector(0, 1)
+                    cat.angle = Math.PI / 2
+                } else if (cat.side == 1) {
+                    cat.pos.x = Math.min(lastSegment.pos.x, width - 2)
+                    cat.pos.y = height - 2
+                    cat.dir = vector(0, -1)
+                    cat.angle = -Math.PI / 2
+                } else if (cat.side == 2) {
+                    cat.pos.x = 0
+                    cat.pos.y = Math.min(lastSegment.pos.y, height - 2)
+                    cat.dir = vector(1, 0)
+                    cat.angle = 0
+                } else if (cat.side == 3) {
+                    cat.pos.x = width - 2
+                    cat.pos.y = Math.min(lastSegment.pos.y, height - 2)
+                    cat.dir = vector(-1, 0)
+                    cat.angle = Math.PI
+                }
+            }
             if (cat.timer < 60 * 2) {
-                mg.draw_image(assets.cat_warning, -20, -20)
+                let show = true
+                if (cat.timer > 60 * 1.5) {
+                    show = Math.floor(cat.timer / 5) % 2 == 0
+                }
+                if (show) {
+                    mg.draw_image(assets.cat_warning, -20, -20)
+                }
             } else {
                 mg.draw_image(assets.cat, -20, -20)
                 cat.pos = vecadd(cat.pos, vecmul(cat.dir, 0.5))
@@ -517,6 +528,7 @@ function loop(dt) {
                 }
                 if (highest_segment >= 0) {
                     snake = snake.slice(highest_segment)
+                    score -= highest_segment
                 }
                 for (let i = foods.length - 1; i >= 0; i--) {
                     if (veceq(catmouth, foods[i].pos) || veceq(catmouth2, foods[i].pos)) {
@@ -545,10 +557,31 @@ function loop(dt) {
         for (let key in buttons) {
             buttons[key] = false
         }
+
+        mg.set_fill_color(255, 255, 255)
+        mg.ctx.textAlign = "end"
+        mg.text_style(25)
+        mg.draw_text("Score: " + Math.round(score*10)/10, mg.width - 10, 40)
+        mg.ctx.textAlign = "start"
+
+    } else if (STATE == "game over") {
+        gameover.style.visibility = "visible"
+        document.querySelector("#deathreason").innerText = deathreason + "\nclick/tap screen to restart"
+        let refreshed = false
+        mg.canvas.addEventListener("pointerup", () => {
+            if (!refreshed) {
+                refreshed = true
+                location.reload()
+                return false
+            }
+        })
     }
 
     mg.set_fill_color(255, 255, 255)
-    mg.draw_text(Math.floor(1000 / dt), 0, 20)
+    mg.text_style(8, "monospace")
+    mg.draw_text(Math.floor(1000 / dt), 0, 10)
+    mg.draw_text("COPYwRITE TGUM 2026™", 0, 20)
+    mg.draw_text("DeMO VERSION. PLEAsE DISTRIBUTE", 0, 30)
 }
 
 mg.start()
