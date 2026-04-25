@@ -564,6 +564,11 @@ function loop(dt) {
         mg.draw_text("Score: " + Math.round(score*10)/10, mg.width - 10, 40)
         mg.ctx.textAlign = "start"
 
+        mg.set_fill_color(255, 255, 255)
+        mg.text_style(8, "monospace")
+        mg.draw_text(Math.floor(1000 / dt), 0, 10)
+        mg.draw_text("COPYwRITE TGUM 2026™", 0, 20)
+        mg.draw_text("DeMO VERSION. PLEAsE DISTRIBUTE", 0, 30)
     } else if (STATE == "game over") {
         gameover.style.visibility = "visible"
         document.querySelector("#deathreason").innerText = deathreason + "\nclick/tap screen to restart"
@@ -576,12 +581,6 @@ function loop(dt) {
             }
         })
     }
-
-    mg.set_fill_color(255, 255, 255)
-    mg.text_style(8, "monospace")
-    mg.draw_text(Math.floor(1000 / dt), 0, 10)
-    mg.draw_text("COPYwRITE TGUM 2026™", 0, 20)
-    mg.draw_text("DeMO VERSION. PLEAsE DISTRIBUTE", 0, 30)
 }
 
 mg.start()
