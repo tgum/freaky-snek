@@ -88,7 +88,7 @@ let foodPool = {
     gay: 50,
     snail: 0.1,
     heart: 10,
-    monster: 100,
+    monster: 10,
 }
 function spawnFood() {
     let pos = vector(Math.random() * (width - 1), Math.random() * (height - 1))
@@ -257,7 +257,7 @@ function loop(dt) {
             spawnCat()
         }
 
-        if (dircooldown == 0) {
+        if (dircooldown <= 0) {
             let flipped = false
             let moved = false
             let headdir = snake[snake.length - 1].dir
@@ -386,8 +386,9 @@ function loop(dt) {
                         setTimeout(() => { gay-- }, 10000)
                     }
                     if (foods[i].type == "monster") {
-                        foodPool.monster = 0
                         irish = true
+                        speed--
+                        foodPool.monster += 10
                     }
                     foods.splice(i, 1)
                     ateFood = true
