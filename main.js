@@ -177,9 +177,11 @@ function spawnCat() {
     let side = Math.floor(Math.random() * 4)
     cat.side = side
     cat.timer = 0
+    cat.cyber = Math.random() < 0.3
 }
 
 let assets = {}
+let sounds = {}
 function preload() {
     let assetsFiles = [
         "pizza_tl",
@@ -205,6 +207,9 @@ function preload() {
     for (let file of assetsFiles) {
         assets[file] = mg.load_image(`assets/${file}.png`)
     }
+
+    sounds.meow = mg.load_sound("audio/meow.ogg")
+    sounds.uwu = mg.load_sound("audio/uwu.wav")
 }
 
 function load() {
@@ -231,7 +236,7 @@ function resetVariables() {
     foods = []
 }
 
-let buttons = { up: false, down: false, left: false, right: false, jump: false }
+let buttons = { up: false, down: false, left: false, right: false, jump: false, meow: false }
 for (let button of Object.keys(buttons)) {
     let elt = document.getElementById(button)
     elt.addEventListener("pointerdown", () => {
@@ -257,6 +262,7 @@ let canjump = true
 let lastjump = 0
 let score = 0
 let time = 0
+let meowing = 0
 
 function loop(dt) {
     if (STATE == "playing") {
@@ -266,6 +272,7 @@ function loop(dt) {
         lastjump++
         if (dircooldown > 0) dircooldown--
         if (flipcooldown > 0) flipcooldown--
+        if (meowing > 0) meowing--
 
         if (chicken.alive && Math.random() < 0.005 && !cat.alive) {
             spawnCat()
@@ -344,6 +351,18 @@ function loop(dt) {
             if (cheatsequence.endsWith("gussy")) {
                 speed += 4
                 console.log("cheatcode :D")
+            }
+        }
+
+        if (mg.isKeyJustDown("KeyE") || buttons.meow && meowing < 0) {
+            meowing = 60
+            if (Math.random() < 0.05) {
+                sounds.uwu.play()
+            } else {
+                sounds.meow.play()
+            }
+            if (Math.random() < 0.1 && !cat.alive) {
+                spawnCat()
             }
         }
 
@@ -442,7 +461,7 @@ function loop(dt) {
         for (let segment of snake) {
             mg.set_fill_color(0, 255, 0)
             if (gay > 0) {
-                mg.set_fill_color(...HSVtoRGB(i / snake.length, 0.6 + gay*0.2, 1))
+                mg.set_fill_color(...HSVtoRGB(i / snake.length, 0.6 + gay * 0.2, 1))
             }
 
             let dsize = Math.floor(i / snake.length * grid_size / 2 + grid_size / 2)
@@ -460,7 +479,7 @@ function loop(dt) {
         if (irish) {
             mg.draw_image(assets.ginger, lastSegment.pos.x * grid_size, lastSegment.pos.y * grid_size)
         }
-        if (time < 60*2) {
+        if (time < 60 * 2) {
             mg.set_fill_color(255, 255, 255)
             mg.text_style(20)
             mg.draw_text("hello 😊", lastSegment.pos.x * grid_size, lastSegment.pos.y * grid_size - 5)
@@ -528,7 +547,11 @@ function loop(dt) {
                     mg.draw_image(assets.cat_warning, -20, -20)
                 }
             } else {
-                mg.draw_image(assets.cat, -20, -20)
+                if (cat.cyber) {
+                    mg.draw_image(assets.mysterious_cat, -20, -20)
+                } else {
+                    mg.draw_image(assets.cat, -20, -20)
+                }
                 cat.pos = vecadd(cat.pos, vecmul(cat.dir, 0.5))
 
                 let catmouth = vecadd(cat.pos, cat.dir)
@@ -585,7 +608,7 @@ function loop(dt) {
         mg.set_fill_color(255, 255, 255)
         mg.ctx.textAlign = "end"
         mg.text_style(25)
-        mg.draw_text("Score: " + Math.round(score*10)/10, mg.width - 10, 40)
+        mg.draw_text("Score: " + Math.round(score * 10) / 10, mg.width - 10, 40)
         mg.ctx.textAlign = "start"
 
         mg.set_fill_color(255, 255, 255)
