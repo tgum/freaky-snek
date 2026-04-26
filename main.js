@@ -84,11 +84,12 @@ let foodPool = {
     pizza: 100,
     scone: 100,
     chicken: 30,
-    cat: 50,
+    cat: 60,
     gay: 50,
     snail: 0.1,
     heart: 10,
     monster: 10,
+    evilapple: 30,
 }
 function spawnFood() {
     let pos = vector(Math.random() * (width - 1), Math.random() * (height - 1))
@@ -124,6 +125,10 @@ function spawnFood() {
             spawnFood()
             spawnCat()
             break
+        case "evilapple":
+            setTimeout(() => {
+                foods[0].type = "apple"
+            }, 10000)
         case "heart":
         default:
             foods.push({ pos: vecfloor(pos), type })
@@ -193,6 +198,7 @@ function preload() {
     assets.cat = mg.load_image("assets/cat.png")
     assets.monster = mg.load_image("assets/monster.png")
     assets.ginger = mg.load_image("assets/ginger.png")
+    assets.evilapple = mg.load_image("assets/evilapple.png")
 }
 
 function load() {
@@ -384,6 +390,10 @@ function loop(dt) {
                     if (foods[i].type == "gay") {
                         gay++
                         setTimeout(() => { gay-- }, 10000)
+                    }
+                    if (foods[i].type == "evilapple") {
+                        STATE = "game over"
+                        deathreason = "that apple was EVIL!"
                     }
                     if (foods[i].type == "monster") {
                         irish = true
