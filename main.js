@@ -181,24 +181,30 @@ function spawnCat() {
 
 let assets = {}
 function preload() {
-    assets.pizza_tl = mg.load_image("assets/pizza_tl.png")
-    assets.pizza_tr = mg.load_image("assets/pizza_tr.png")
-    assets.pizza_bl = mg.load_image("assets/pizza_bl.png")
-    assets.pizza_br = mg.load_image("assets/pizza_br.png")
-    assets.apple = mg.load_image("assets/apple.png")
-    assets.scone = mg.load_image("assets/scone.png")
-    assets.gay = mg.load_image("assets/gay.png")
-    assets.snail = mg.load_image("assets/snail.png")
-    assets.heart = mg.load_image("assets/heart.png")
-    assets.chicken = mg.load_image("assets/chicken.png")
-    assets.chicken_eating = mg.load_image("assets/chicken_eating.png")
-    assets.chicken_flipped = mg.load_image("assets/chicken_flipped.png")
-    assets.chicken_eating_flipped = mg.load_image("assets/chicken_eating_flipped.png")
-    assets.cat_warning = mg.load_image("assets/cat_warning.png")
-    assets.cat = mg.load_image("assets/cat.png")
-    assets.monster = mg.load_image("assets/monster.png")
-    assets.ginger = mg.load_image("assets/ginger.png")
-    assets.evilapple = mg.load_image("assets/evilapple.png")
+    let assetsFiles = [
+        "pizza_tl",
+        "pizza_tr",
+        "pizza_bl",
+        "pizza_br",
+        "apple",
+        "scone",
+        "gay",
+        "snail",
+        "heart",
+        "chicken",
+        "chicken_eating",
+        "chicken_flipped",
+        "chicken_eating_flipped",
+        "cat_warning",
+        "cat",
+        "monster",
+        "ginger",
+        "evilapple",
+        "mysterious_cat",
+    ]
+    for (let file of assetsFiles) {
+        assets[file] = mg.load_image(`assets/${file}.png`)
+    }
 }
 
 function load() {
