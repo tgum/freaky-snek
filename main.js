@@ -354,10 +354,11 @@ function loop(dt) {
             }
         }
 
-        if (mg.isKeyJustDown("KeyE") || buttons.meow && meowing < 0) {
+        if ((mg.isKeyJustDown("KeyE") || buttons.meow) && meowing <= 0) {
             meowing = 60
             if (Math.random() < 0.05) {
                 sounds.uwu.play()
+                score += 5
             } else {
                 sounds.meow.play()
             }
