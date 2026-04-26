@@ -1,3 +1,5 @@
+/* DONT USE THIS FILE IN OTHER PROJECTS */
+
 body,
 html {
   margin: 0;
@@ -89,4 +91,45 @@ button#right {
   align-items: center;
   text-align: center;
   pointer-events: none;
+}
+
+#dialogtext {
+  white-space: pre-line;
+  font-weight: bold;
+}
+
+#dialog {
+  --color1: #712753;
+  --color2: #e8c5d9;
+  position: absolute;
+  background: var(--color2);
+  color: var(--color1);
+  border: 0.5em solid var(--color1);
+  border-radius: 2em;
+  bottom: 1em;
+  display:block;
+  padding: 1em;
+  max-width: 100%;
+  display:none;
+}
+
+#dialogoptions {
+  padding: 0;
+  margin: 0.5em;
+}
+
+#dialog button {
+  font-size: 1rem;
+  font-weight: bold;
+  border-radius: 0.5em;
+  background-color: var(--color1);
+  color: var(--color2);
+  border: none;
+  padding: 0.5em;
+  margin-right: 0.2em;
+  display: block;
+}
+
+#dialog button:hover {
+  background: #4e183e;
 }

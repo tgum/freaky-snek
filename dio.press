@@ -3,6 +3,7 @@
 
 [startfr] Challenge accepted !
 [explanation] um i didnt watch jojo's bizzarre adventure
+[neutralending] quick skip
 
 ## explanation
 "im like a vampire with magic vampire powers. yea."
@@ -36,7 +37,23 @@
 [badending] yeah fair enough
 
 ## good name
-"Oh alright, sorry."
+"Oh alright, sorry. Do you know who was the greatest man ever?"
+
+[it was i dio] robert smith?
+[it was i dio] albert einstein?
+[correct] you?
+
+## correct
++correct
+>it was i dio
+
+## it was i dio
+?correct "CORRECT!"
+"IT WAS ME! DIO! I have since renounced my humanity but I used to be the greatest man. Now I am the ultimate being! Toghether we could conquer death itself! Do you want to join me?"
+
+?correct [goodending] Yes O Master dio!
+!correct [neutralending] sure
+[badending] NO! I will never join forces with evil Scum such as you!
 
 ## badending
 ;"ニア　ハタナタサハらや　やぁら　タラハア　ハ　はあら　たなわん"

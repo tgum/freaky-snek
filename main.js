@@ -203,6 +203,8 @@ function preload() {
         "ginger",
         "evilapple",
         "mysterious_cat",
+        "dio_brando",
+        "dio_the_boss",
     ]
     for (let file of assetsFiles) {
         assets[file] = mg.load_image(`assets/${file}.png`)
@@ -213,27 +215,7 @@ function preload() {
 }
 
 function load() {
-    resetVariables()
     spawnFood()
-}
-
-function resetVariables() {
-    press.variables = {}
-    frame = 0
-    speed = 10
-    flipcooldown = 0
-    STATE = "playing"
-    deathreason = ""
-    background_color = [0, 0, 0]
-    gay = 0
-    cheatsequence = ""
-    slowdown = 0
-    canjump = true
-    dircooldown = 0
-    headheight = 0
-    snake = [{ pos: vector(1, 1), dir: direction, height: headheight }]
-
-    foods = []
 }
 
 let buttons = { up: false, down: false, left: false, right: false, jump: false, meow: false }
@@ -263,6 +245,21 @@ let lastjump = 0
 let score = 0
 let time = 0
 let meowing = 0
+
+let canhamon = true
+let diohealth = 0
+let dio = {
+    pos: vector(0, 0),
+    dir: vector(0, 0),
+}
+
+let rooms = {}
+fetch("dio.press")
+    .then(r => r.text())
+    .then(r => {
+        rooms = press.parse_rooms(r)
+    })
+let starteddialog = false
 
 function loop(dt) {
     if (STATE == "playing") {
@@ -427,6 +424,9 @@ function loop(dt) {
                         irish = true
                         speed--
                         foodPool.monster += 10
+                    }
+                    if (foods[i].type == "heart") {
+                        STATE = "date"
                     }
                     foods.splice(i, 1)
                     ateFood = true
@@ -602,6 +602,9 @@ function loop(dt) {
             }
             mg.ctx.restore()
         }
+        if (diohealth > 0) {
+            mg.draw_image(assets.dio_the_boss, dio.pos.x * grid_size, dio.pos.y * grid_size)
+        }
         for (let key in buttons) {
             buttons[key] = false
         }
@@ -628,6 +631,40 @@ function loop(dt) {
                 return false
             }
         })
+    } else if (STATE == "date") {
+        mg.draw_image(assets.dio_brando, 0, 0)
+        if (!starteddialog) {
+            dialog.style.display = "block"
+            starteddialog = true
+            printroom("Start")
+        }
+    }
+}
+
+function printroom(roomname) {
+    if (roomname == "End") {
+        STATE = "playing"
+        foodPool.heart = 0
+        dialog.style.display = "none"
+        if (press.variables.noHamon > 0) {
+            canhamon = false
+        }
+        if (press.variables.gottaFight > 0) {
+            diohealth = 5
+        }
+        return
+    }
+    let { text, options } = press.parse_room(rooms, roomname)
+    dialogtext.innerText = text.trim()
+    dialogoptions.innerHTML = ""
+    for (let i = 0; i < options.length; i++) {
+        let b = document.createElement("button")
+        b.innerText = options[i].text
+        b.style.display = "block"
+        b.onclick = () => {
+            printroom(options[i].dest)
+        }
+        dialogoptions.append(b)
     }
 }
 
