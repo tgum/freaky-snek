@@ -250,9 +250,11 @@ let slowdown = 0
 let canjump = true
 let lastjump = 0
 let score = 0
+let time = 0
 
 function loop(dt) {
     if (STATE == "playing") {
+        time++
         mg.clear_screen(...background_color)
         frame++
         lastjump++
@@ -451,6 +453,11 @@ function loop(dt) {
         mg.filled_rect(lastSegment.pos.x * grid_size, lastSegment.pos.y * grid_size, grid_size, grid_size)
         if (irish) {
             mg.draw_image(assets.ginger, lastSegment.pos.x * grid_size, lastSegment.pos.y * grid_size)
+        }
+        if (time < 60*2) {
+            mg.set_fill_color(255, 255, 255)
+            mg.text_style(20)
+            mg.draw_text("hello 😊", lastSegment.pos.x * grid_size, lastSegment.pos.y * grid_size - 5)
         }
 
 
