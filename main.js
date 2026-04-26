@@ -37,6 +37,12 @@ function veccopy(a) {
 function vecrand(maxx, maxy) {
     return vector(Math.random() * maxx, Math.random() * maxy)
 }
+function veclen(a) {
+    return Math.sqrt(a.x ** 2 + a.y ** 2)
+}
+function vecnorm(a) {
+    return vector(a.x / veclen(a), a.y / veclen(a))
+}
 
 function HSVtoRGB(h, s, v) {
     // https://stackoverflow.com/a/17243070
@@ -205,6 +211,7 @@ function preload() {
         "mysterious_cat",
         "dio_brando",
         "dio_the_boss",
+        "hamon",
     ]
     for (let file of assetsFiles) {
         assets[file] = mg.load_image(`assets/${file}.png`)
@@ -252,6 +259,7 @@ let dio = {
     pos: vector(0, 0),
     dir: vector(0, 0),
 }
+let hamonbeams = []
 
 let rooms = {}
 fetch("dio.press")
@@ -328,8 +336,11 @@ function loop(dt) {
                 setTimeout(() => { headheight = 0 }, dt * speed * 3)
                 setTimeout(() => { canjump = true }, 3000)
             }
-            if (lastjump < 20) {
-                console.log("doublejump!")
+            if (lastjump < 20 && canhamon) {
+                hamonbeams.push({
+                    pos: veccopy(snake[snake.length-1].pos),
+                    dir: direction,
+                })
             }
             lastjump = 0
         }
@@ -602,8 +613,44 @@ function loop(dt) {
             }
             mg.ctx.restore()
         }
+        let newbeams = []
+        for (let beam of hamonbeams) {
+            beam.pos = vecadd(beam.pos, vecmul(beam.dir, 0.3))
+            mg.draw_image(assets.hamon, beam.pos.x * grid_size, beam.pos.y * grid_size)
+            let dead = false
+            if (beam.pos.x > dio.pos.x - 2.5 && beam.pos.x < dio.pos.x + 2.5 &&
+                beam.pos.y > dio.pos.y - 2.5 && beam.pos.y < dio.pos.y + 2.5 && diohealth > 0) {
+                dead = true
+                diohealth--
+                if (diohealth <= 0) {
+                    score += 10
+                    spawnFood()
+                }
+            }
+            if (beam.pos.x > width || beam.pos.x < -1 || beam.pos.y > height || beam.pos.y < -1) {
+                dead = true
+            }
+            if (!dead) {
+                newbeams.push(beam)
+            }
+        }
+        hamonbeams = newbeams
         if (diohealth > 0) {
-            mg.draw_image(assets.dio_the_boss, dio.pos.x * grid_size, dio.pos.y * grid_size)
+            let lastSegment = snake[snake.length - 1]
+            dio.dir = vecnorm(vecsub(lastSegment.pos, dio.pos))
+            dio.pos = vecadd(dio.pos, vecmul(dio.dir, 0.1))
+
+            if (lastSegment.pos.x > dio.pos.x - 2.5 && lastSegment.pos.x < dio.pos.x + 2.5 &&
+                lastSegment.pos.y > dio.pos.y - 2.5 && lastSegment.pos.y < dio.pos.y + 2.5) {
+                STATE = "game over"
+                deathreason = "destroyed by DIOs immense power"
+            }
+
+            mg.draw_image(assets.dio_the_boss, dio.pos.x * grid_size - 50, dio.pos.y * grid_size - 50)
+            mg.set_fill_color(255, 255, 255)
+            mg.rect(20, 10, mg.width-40, 40)
+            mg.set_fill_color(255, 0, 0)
+            mg.rect(25, 15, (mg.width-50) * (diohealth/10), 30)
         }
         for (let key in buttons) {
             buttons[key] = false
@@ -622,7 +669,7 @@ function loop(dt) {
         mg.draw_text("DeMO VERSION. PLEAsE DISTRIBUTE", 0, 30)
     } else if (STATE == "game over") {
         gameover.style.visibility = "visible"
-        document.querySelector("#deathreason").innerText = deathreason + "\nclick/tap screen to restart"
+        document.querySelector("#deathreason").innerText = deathreason + "\nclick/tap screen to play again"
         let refreshed = false
         mg.canvas.addEventListener("pointerup", () => {
             if (!refreshed) {
@@ -636,6 +683,7 @@ function loop(dt) {
         if (!starteddialog) {
             dialog.style.display = "block"
             starteddialog = true
+            foods = []
             printroom("Start")
         }
     }
@@ -644,13 +692,16 @@ function loop(dt) {
 function printroom(roomname) {
     if (roomname == "End") {
         STATE = "playing"
-        foodPool.heart = 0
+        foodPool.heart -= 0.5
+        starteddialog = false
         dialog.style.display = "none"
         if (press.variables.noHamon > 0) {
             canhamon = false
         }
         if (press.variables.gottaFight > 0) {
-            diohealth = 5
+            diohealth = 10
+        } else {
+            spawnFood()
         }
         return
     }
