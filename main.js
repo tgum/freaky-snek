@@ -96,6 +96,7 @@ let foodPool = {
     heart: 10,
     monster: 10,
     evilapple: 30,
+    pawn: 500,
 }
 function spawnFood() {
     let pos = vector(Math.random() * (width - 1), Math.random() * (height - 1))
@@ -179,6 +180,7 @@ let cat = {
     angle: 0
 }
 function spawnCat() {
+    if (cat.alive) return
     cat.alive = true
     let side = Math.floor(Math.random() * 4)
     cat.side = side
@@ -212,6 +214,7 @@ function preload() {
         "dio_brando",
         "dio_the_boss",
         "hamon",
+        "pawn",
     ]
     for (let file of assetsFiles) {
         assets[file] = mg.load_image(`assets/${file}.png`)
@@ -338,7 +341,7 @@ function loop(dt) {
             }
             if (lastjump < 20 && canhamon) {
                 hamonbeams.push({
-                    pos: veccopy(snake[snake.length-1].pos),
+                    pos: veccopy(snake[snake.length - 1].pos),
                     dir: direction,
                 })
             }
@@ -370,7 +373,7 @@ function loop(dt) {
             } else {
                 sounds.meow.play()
             }
-            if (Math.random() < 0.1 && !cat.alive) {
+            if (Math.random() < 0.2) {
                 spawnCat()
             }
         }
@@ -417,32 +420,47 @@ function loop(dt) {
 
             let lastSegment = snake[snake.length - 1]
             for (let i = foods.length - 1; i >= 0; i--) {
-                if (veceq(foods[i].pos, lastSegment.pos) && headheight == 0) {
+                let food = foods[i]
+                if (veceq(food.pos, lastSegment.pos) && headheight == 0) {
                     score += 10 / speed * (gay + 1)
-                    if (foods[i].type == "scone") {
+                    if (food.type == "scone") {
                         speed -= 2
                         setTimeout(() => { speed += 2 }, 10000)
                     }
-                    if (foods[i].type == "gay") {
+                    if (food.type == "gay") {
                         gay++
                         setTimeout(() => { gay-- }, 10000)
                     }
-                    if (foods[i].type == "evilapple") {
+                    if (food.type == "evilapple") {
                         STATE = "game over"
                         deathreason = "that apple was EVIL!"
+                        return
                     }
-                    if (foods[i].type == "monster") {
+                    if (food.type == "monster") {
                         irish = true
                         speed--
                         foodPool.monster += 10
                     }
-                    if (foods[i].type == "heart") {
+                    if (food.type == "heart") {
                         STATE = "date"
                     }
-                    foods.splice(i, 1)
                     ateFood = true
+                    foods.splice(i, 1)
+
                     if (foods.length == 0) {
                         spawnFood()
+                    }
+                }
+                if (food.type == "pawn") {
+                    if (veceq(vecadd(food.pos, vector(-1, 0)), lastSegment.pos) ||
+                        veceq(vecadd(food.pos, vector(1, 0)), lastSegment.pos)) {
+                        lastSegment.pos = vecadd(food.pos, vector(0, -1))
+                        ateFood = true
+                        foods.splice(i, 1)
+
+                        if (foods.length == 0) {
+                            spawnFood()
+                        }
                     }
                 }
             }
@@ -487,7 +505,8 @@ function loop(dt) {
         }
         mg.set_fill_color(0, 128, 0)
         let lastSegment = snake[snake.length - 1]
-        mg.filled_rect(lastSegment.pos.x * grid_size, lastSegment.pos.y * grid_size, grid_size, grid_size)
+        let drawpos = vecmul(vecadd(lastSegment.pos, vecmul(direction, frame / speed)), grid_size)
+        mg.filled_rect(drawpos.x, drawpos.y, grid_size, grid_size)
         if (irish) {
             mg.draw_image(assets.ginger, lastSegment.pos.x * grid_size, lastSegment.pos.y * grid_size)
         }
@@ -648,9 +667,9 @@ function loop(dt) {
 
             mg.draw_image(assets.dio_the_boss, dio.pos.x * grid_size - 50, dio.pos.y * grid_size - 50)
             mg.set_fill_color(255, 255, 255)
-            mg.rect(20, 10, mg.width-40, 40)
+            mg.rect(20, 10, mg.width - 40, 40)
             mg.set_fill_color(255, 0, 0)
-            mg.rect(25, 15, (mg.width-50) * (diohealth/10), 30)
+            mg.rect(25, 15, (mg.width - 50) * (diohealth / 10), 30)
         }
         for (let key in buttons) {
             buttons[key] = false
