@@ -96,7 +96,7 @@ let foodPool = {
     heart: 10,
     monster: 10,
     evilapple: 30,
-    pawn: 500,
+    pawn: 50,
 }
 function spawnFood() {
     let pos = vector(Math.random() * (width - 1), Math.random() * (height - 1))
@@ -215,6 +215,7 @@ function preload() {
         "dio_the_boss",
         "hamon",
         "pawn",
+        "speedlines",
     ]
     for (let file of assetsFiles) {
         assets[file] = mg.load_image(`assets/${file}.png`)
@@ -439,7 +440,7 @@ function loop(dt) {
                     if (food.type == "monster") {
                         irish = true
                         speed--
-                        foodPool.monster += 10
+                        foodPool.monster *= 2
                     }
                     if (food.type == "heart") {
                         STATE = "date"
@@ -508,7 +509,7 @@ function loop(dt) {
         let drawpos = vecmul(vecadd(lastSegment.pos, vecmul(direction, frame / speed)), grid_size)
         mg.filled_rect(drawpos.x, drawpos.y, grid_size, grid_size)
         if (irish) {
-            mg.draw_image(assets.ginger, lastSegment.pos.x * grid_size, lastSegment.pos.y * grid_size)
+            mg.draw_image(assets.ginger, drawpos.x, drawpos.y)
         }
         if (time < 60 * 2) {
             mg.set_fill_color(255, 255, 255)
@@ -673,6 +674,11 @@ function loop(dt) {
         }
         for (let key in buttons) {
             buttons[key] = false
+        }
+
+        let speeddiff = 10-speed
+        for (let i = 0; i < speeddiff; i++) {
+            mg.draw_image(assets.speedlines, Math.random()*speeddiff-speeddiff/2, Math.random()*speeddiff-speeddiff/2)
         }
 
         mg.set_fill_color(255, 255, 255)
