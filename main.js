@@ -435,7 +435,6 @@ function loop(dt) {
                     if (food.type == "evilapple") {
                         STATE = "game over"
                         deathreason = "that apple was EVIL!"
-                        return
                     }
                     if (food.type == "monster") {
                         irish = true
@@ -581,10 +580,11 @@ function loop(dt) {
             } else {
                 if (cat.cyber) {
                     mg.draw_image(assets.mysterious_cat, -20, -20)
+                    cat.pos = vecadd(cat.pos, vecmul(cat.dir, 1))
                 } else {
                     mg.draw_image(assets.cat, -20, -20)
+                    cat.pos = vecadd(cat.pos, vecmul(cat.dir, 0.5))
                 }
-                cat.pos = vecadd(cat.pos, vecmul(cat.dir, 0.5))
 
                 let catmouth = vecadd(cat.pos, cat.dir)
                 let catmouth2 = veccopy(catmouth)
